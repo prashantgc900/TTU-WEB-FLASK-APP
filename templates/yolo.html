@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>YOLO-Object Detection</title>
+    <link rel="stylesheet" type="text/css" href="../static/index.css" />
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"
+        integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+    <script type="text/javascript" src="../static/index.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.1.3/dist/css/bootstrap.min.css"
+        integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+        integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.3/dist/umd/popper.min.js"
+        integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.1.3/dist/js/bootstrap.min.js"
+        integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy"
+        crossorigin="anonymous"></script>
+
+
+
+
+    <script>
+        $(document).ready(function () {
+            $("select").change(function () {
+                $(this).find("option:selected").each(function () {
+                    var optionValue = $(this).attr("value");
+                    if (optionValue) {
+                        $(".container-fluid").not("." + optionValue).hide();
+                        $("." + optionValue).show();
+                    } else {
+                        $(".container-fluid").hide();
+                    }
+                });
+            }).change();
+        });
+    </script>
+
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top" id="mainNav">
+            <div class="container px-4">
+                <a class="navbar-brand" href={{ url_for('home') }}>Advanced Particle Detector Laboratory</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
+                <div class="collapse navbar-collapse" id="navbarResponsive">
+                    <ul class="navbar-nav ms-auto">
+                        <li class="nav-item"><a class="nav-link" href={{ url_for('home') }}>HOME</a></li>
+                        <li class="nav-item"><a class="nav-link" href={{ url_for('unet_uploader') }}>UNET</a></li>
+                        <li class="nav-item"><a class="nav-link" href={{ url_for('yolo_uploader') }}>YOLO</a></li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    <div class="App">
+        <header class="App-header">
+            <p><u> Image Segmentation - YOLO </u></p>
+            <!-- <div className="pre_img">
+          <span><img id="imagebox" src="" /></span>
+        </div> -->
+            <div class="row">
+                <div class="col-lg-12">
+                    <p>
+                        {% with messages = get_flashed_messages() %}
+                        {% if messages %}
+                        {% for message in messages %}
+                    <div class="alert alert-success">
+                        <strong>{{ message }}</strong>
+                    </div>
+                    {% endfor %}
+                    {% endif %}
+                    {% endwith %}
+                    </p>
+                    <div>
+                        <!-- File upload form -->
+                        <form method="post" action="/upload" enctype="multipart/form-data" class="form-inline">
+                            <div class="form-group">
+                                <label>Choose Images: </label>
+                                <input type="file" name="files[]" id="fileInput" class="form-control" multiple>
+                            </div>
+                            <input type="submit" name="submit" class="btn btn-success" value="UPLOAD" />
+                        </form>
+                    </div>
+                </div>
+                <div id="image-link">
+                    {% for upload in labelnames %}
+                    {% if 'zip' in upload %}
+                    <a href="{{url_for('static', filename=upload)}}" id="download" download>
+                        <button class="download-btn"><i class="fa fa-download"></i> Download Label Files</button>
+                    </a>
+                    {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+        </header>
+    </div>
+    {% if uploads|length > 1 %}
+    <div class="jumbotron">
+        <div class="card">
+            <div class="card-body">
+                <h3 class="card-title">Summary Table</h3>
+                <h5 class="card-text">Total Images: {{uploads|length}}</h5>
+                <table class="table table-hover table-bordered">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th scope="col">Class</th>
+                            <th scope="col">Number of Images</th>
+                            <th scope="col">Image List</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Glue</td>
+                            <td>{{glue|length}}</td>
+                            <td>{{gluelist}}</td>
+                        </tr>
+                        <tr>
+                            <td>Broken</td>
+                            <td>{{broken|length}}</td>
+                            <td>{{brokenlist}}</td>
+                        </tr>
+                        <tr>
+                            <td>FooBar</td>
+                            <td>{{foobar|length}}</td>
+                            <td>{{foobarlist}}</td>
+                        </tr>
+                        <tr>
+                            <td>One-Third Wires</td>
+                            <td>{{one_wire|length}}</td>
+                            <td>{{one_wirelist}}</td>
+                        </tr>
+                        <tr>
+                            <td>Two-Third Wires</td>
+                            <td>{{two_wire|length}}</td>
+                            <td>{{two_wirelist}}</td>
+                        </tr>
+                        <tr>
+                            <td>All Wires</td>
+                            <td>{{all_wire|length}}</td>
+                            <td>{{all_wirelist}}</td>
+                        </tr>
+                        <tr>
+                            <td>Good</td>
+                            <td>{{good|length}}</td>
+                            <td>{{goodlist}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div>
+        <select>
+            <option value="all">All Classes</option>
+            <option value="glue">Glue</option>
+            <option value="broken">Broken</option>
+            <option value="foobar">Foobar</option>
+            <option value="one_wire">One-Third Wires</option>
+            <option value="two_wire">Two-Third Wires</option>
+            <option value="all_wire">All Wires</option>
+            <option value="good">Good</option>
+
+        </select>
+    </div>
+    {% endif %}
+    <div class="container-fluid all">
+        <div class="row mt-4">
+            {% for upload in uploads %}
+            <!--          This is the jinja2 tempate for writing any kind of loops or conditionals          -->
+            {% if ('png' in upload) or ('jpg' in upload) or ('jpeg' in upload) or ('JPG' in upload) %}
+            <!--          Display only the jpg,png,jpeg file formats          -->
+            <div class="item col-sm-6 col-md-4 mb-3">
+                <a href="{{url_for('static', filename=upload)}}" class="fancybox" data-fancybox="gallery1">
+                    <img src="{{url_for('static', filename=upload)}}" width="100%" height="100%">
+                    {% set list1 = upload.split('/') %}
+                    <div class="overlay">{{list1[1]}}</div>
+                </a>
+            </div>
+            {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+    <div class="container-fluid glue">
+        <div class="row mt-4">
+            {% for upload in glue %}
+            <!--          This is the jinja2 tempate for writing any kind of loops or conditionals          -->
+            {% if ('png' in upload) or ('jpg' in upload) or ('jpeg' in upload) or ('JPG' in upload) %}
+            <!--          Display only the jpg,png,jpeg file formats          -->
+            <div class="item col-sm-6 col-md-4 mb-3">
+                <a href="{{url_for('static', filename=upload)}}" class="fancybox" data-fancybox="gallery1">
+                    <img src="{{url_for('static', filename=upload)}}" width="100%" height="100%">
+                    {% set list1 = upload.split('/') %}
+                    <div class="overlay">{{list1[1]}}</div>
+                </a>
+            </div>
+            {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+    <div class="container-fluid broken">
+        <div class="row mt-4">
+            {% for upload in broken %}
+            <!--          This is the jinja2 tempate for writing any kind of loops or conditionals          -->
+            {% if ('png' in upload) or ('jpg' in upload) or ('jpeg' in upload) or ('JPG' in upload) %}
+            <!--          Display only the jpg,png,jpeg file formats          -->
+            <div class="item col-sm-6 col-md-4 mb-3">
+                <a href="{{url_for('static', filename=upload)}}" class="fancybox" data-fancybox="gallery1">
+                    <img src="{{url_for('static', filename=upload)}}" width="100%" height="100%">
+                    {% set list1 = upload.split('/') %}
+                    <div class="overlay">{{list1[1]}}</div>
+                </a>
+            </div>
+            {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+    <div class="container-fluid foobar">
+        <div class="row mt-4">
+            {% for upload in foobar %}
+            <!--          This is the jinja2 tempate for writing any kind of loops or conditionals          -->
+            {% if ('png' in upload) or ('jpg' in upload) or ('jpeg' in upload) or ('JPG' in upload) %}
+            <!--          Display only the jpg,png,jpeg file formats          -->
+            <div class="item col-sm-6 col-md-4 mb-3">
+                <a href="{{url_for('static', filename=upload)}}" class="fancybox" data-fancybox="gallery1">
+                    <img src="{{url_for('static', filename=upload)}}" width="100%" height="100%">
+                    {% set list1 = upload.split('/') %}
+                    <div class="overlay">{{list1[1]}}</div>
+                </a>
+            </div>
+            {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+    <div class="container-fluid one_wire">
+        <div class="row mt-4">
+            {% for upload in one_wire %}
+            <!--          This is the jinja2 tempate for writing any kind of loops or conditionals          -->
+            {% if ('png' in upload) or ('jpg' in upload) or ('jpeg' in upload) or ('JPG' in upload) %}
+            <!--          Display only the jpg,png,jpeg file formats          -->
+            <div class="item col-sm-6 col-md-4 mb-3">
+                <a href="{{url_for('static', filename=upload)}}" class="fancybox" data-fancybox="gallery1">
+                    <img src="{{url_for('static', filename=upload)}}" width="100%" height="100%">
+                    {% set list1 = upload.split('/') %}
+                    <div class="overlay">{{list1[1]}}</div>
+                </a>
+            </div>
+            {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+    <div class="container-fluid two_wire">
+        <div class="row mt-4">
+            {% for upload in two_wire %}
+            <!--          This is the jinja2 tempate for writing any kind of loops or conditionals          -->
+            {% if ('png' in upload) or ('jpg' in upload) or ('jpeg' in upload) or ('JPG' in upload) %}
+            <!--          Display only the jpg,png,jpeg file formats          -->
+            <div class="item col-sm-6 col-md-4 mb-3">
+                <a href="{{url_for('static', filename=upload)}}" class="fancybox" data-fancybox="gallery1">
+                    <img src="{{url_for('static', filename=upload)}}" width="100%" height="100%">
+                    {% set list1 = upload.split('/') %}
+                    <div class="overlay">{{list1[1]}}</div>
+                </a>
+            </div>
+            {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+    <div class="container-fluid all_wire">
+        <div class="row mt-4">
+            {% for upload in all_wire %}
+            <!--          This is the jinja2 tempate for writing any kind of loops or conditionals          -->
+            {% if ('png' in upload) or ('jpg' in upload) or ('jpeg' in upload) or ('JPG' in upload) %}
+            <!--          Display only the jpg,png,jpeg file formats          -->
+            <div class="item col-sm-6 col-md-4 mb-3">
+                <a href="{{url_for('static', filename=upload)}}" class="fancybox" data-fancybox="gallery1">
+                    <img src="{{url_for('static', filename=upload)}}" width="100%" height="100%">
+                    {% set list1 = upload.split('/') %}
+                    <div class="overlay">{{list1[1]}}</div>
+                </a>
+            </div>
+            {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+    <div class="container-fluid good">
+        <div class="row mt-4">
+            {% for upload in good %}
+            <!--          This is the jinja2 tempate for writing any kind of loops or conditionals          -->
+            {% if ('png' in upload) or ('jpg' in upload) or ('jpeg' in upload) or ('JPG' in upload) %}
+            <!--          Display only the jpg,png,jpeg file formats          -->
+            <div class="item col-sm-6 col-md-4 mb-3">
+                <a href="{{url_for('static', filename=upload)}}" class="fancybox" data-fancybox="gallery1">
+                    <img src="{{url_for('static', filename=upload)}}" width="100%" height="100%">
+                    {% set list1 = upload.split('/') %}
+                    <div class="overlay">{{list1[1]}}</div>
+                </a>
+            </div>
+            {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+
+</body>
+
+</html>

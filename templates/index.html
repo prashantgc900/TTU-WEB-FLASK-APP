@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta name="description" content="" />
+    <meta name="author" content="" />
+    <title>Advance Particle Detector Laboratory</title>
+    <link rel="icon" type="image/x-icon" href="assets/favicon.ico" />
+    <!-- Core theme CSS (includes Bootstrap)-->
+    <link href="../static/index_styles.css" rel="stylesheet" />
+</head>
+
+<body id="page-top">
+    <!-- Navigation-->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top" id="mainNav">
+        <div class="container px-4">
+            <a class="navbar-brand" href={{ url_for('home') }}>Advanced Particle Detector Laboratory</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarResponsive"
+                aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation"><span
+                    class="navbar-toggler-icon"></span></button>
+            <div class="collapse navbar-collapse" id="navbarResponsive">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href={{ url_for('home') }}>HOME</a></li>
+                    <li class="nav-item"><a class="nav-link" href={{ url_for('unet_uploader') }}>UNET</a></li>
+                    <li class="nav-item"><a class="nav-link" href={{ url_for('yolo_uploader') }}>YOLO</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <!-- Header-->
+    <header class="bg-primary bg-gradient text-white">
+        <div class="container px-4 text-center">
+            <h1 class="fw-bolder">Advanced Particle Detector Laboratory</h1>
+            <p class="lead">1204 S Gilbert Dr, Building 557 Lubbock, TX 79416-2104</p>
+            <a class="btn btn-lg btn-light" href="https://www.depts.ttu.edu/phas/apdl/">Visit APDL Site!</a>
+        </div>
+    </header>
+    <!-- About section-->
+    <section id="about">
+        <div class="container px-4">
+            <div class="row gx-4 justify-content-center">
+                <div class="col-lg-8">
+                    <h2>About this page</h2>
+                    <p class="lead">This page represents the ongoing research work in Advanced Particle Detector Laboratory, Texas Tech University.
+                        This page features:</p>
+                    <ul>
+                        <li>Unet Module to detect scratches in silicon sensors</li>
+                        <li>Yolov5 Module to detect anomalies in silicon sensors</li>
+                        <li>Web Implementation of Unet and Yolov5 Module</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section class="bg-light" id="services">
+        <div class="container px-4">
+            <div class="row gx-4 justify-content-center">
+                <div class="col-lg-8">
+                    <h2>Services</h2>
+                    <div class="m-4">
+                        <div class="row row-cols-1 row-cols-md-2 g-4">
+                            <div class="col">
+                                <div class="card">
+
+                                    <img src="{{url_for('static', filename="unet-sample.png")}}" class="card-img-top"
+                                        alt="UNET Scratch Detection">
+
+                                    <div class="card-body">
+                                        <a href={{ url_for('unet_uploader') }}>
+                                            <h5 class="card-title">UNET Scratch Detection</h5>
+                                        </a>
+                                        <p class="card-text">Detect scratches in sensor images using UNET Module.</p>
+                                    </div>
+                                    <div class="card-footer">
+                                        <small class="text-muted"><a href="https://github.com/prashantgc900/TTU-Scratch-Detection-Unet">Github Link</a></small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="card">
+                                    <img src="{{url_for('static', filename="yolo-sample.jpg")}}" class="card-img-top"
+                                        alt="...">
+                                    <div class="card-body">
+                                        <a href={{ url_for('yolo_uploader') }}>
+                                            <h5 class="card-title">Yolo Anomaly Detection</h5>
+                                        </a>
+                                        <p class="card-text">Detect anomalies in silicon modules using Yolov5 Module.</p>
+                                    </div>
+                                    <div class="card-footer">
+                                        <small class="text-muted"><a href="https://github.com/prashantgc900/TTU_YOLOV5_WEB">Github Link</a></small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- Footer-->
+    <footer class="py-5 bg-dark">
+        <div class="container px-4">
+            <p class="m-0 text-center text-white">Copyright &copy; Advanced Particle Detector Laboratory</p>
+        </div>
+    </footer>
+    <!-- Bootstrap core JS-->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Core theme JS-->
+    <script src="../static/index_js.js"></script>
+</body>
+
+</html>
